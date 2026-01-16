@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Muntaha369/Go-CRUD-Mongo/internal/db"
+	"github.com/Muntaha369/Go-CRUD-Mongo/internal/repository"
 )
 
 func main() {
@@ -14,8 +15,10 @@ func main() {
 	}
 	router := http.NewServeMux()
 
-	router.HandleFunc("GET /api/sendall", client.GetAll())
-	router.HandleFunc("POST /api/createnew", client.WriteTO())
+	operation := repository.NewService(client)
+
+	router.HandleFunc("GET /api/sendall", operation.GetAll())
+	router.HandleFunc("POST /api/createnew", operation.WriteTO())
 
 	server := http.Server{
 		Addr:    "localhost:3004",
