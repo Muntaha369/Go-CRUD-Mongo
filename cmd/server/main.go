@@ -25,7 +25,9 @@ func main() {
 	operation := repository.NewService(client)
 
 	router.HandleFunc("GET /api/sendall", operation.GetAll())
-	router.HandleFunc("POST /api/createnew", operation.WriteTO())
+	router.HandleFunc("POST /api/createnew", operation.CreateNew())
+	router.HandleFunc("GET /api/getuser/{name}", operation.GetByName())
+	router.HandleFunc("PUT /api/updateuser", operation.UpdateUser())
 
 	server := http.Server{
 		Addr:    ":" + strconv.Itoa(cfg.Server.Port),
