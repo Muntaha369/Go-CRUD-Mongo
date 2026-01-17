@@ -45,7 +45,8 @@ func (h *Service) WriteTO() http.HandlerFunc {
 		_, err := h.DB.Db.Collection("users").InsertOne(context.TODO(), user)
 
 		if err != nil {
-			response.WriteJson(w, 200, map[string]string{"message": "User created successfully"})
+			response.WriteJson(w, 404, response.Genralerror(err))
 		}
+		response.WriteJson(w, 200, map[string]string{"message": "User created successfully"})
 	}
 }
