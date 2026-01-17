@@ -4,14 +4,21 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/Muntaha369/Go-CRUD-Mongo/internal/config"
 	"github.com/Muntaha369/Go-CRUD-Mongo/internal/db"
 	"github.com/Muntaha369/Go-CRUD-Mongo/internal/repository"
 )
 
 func main() {
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatal("cannot load config:", err)
+	}
+
 	client := db.DB{
-		Db: db.ConnectDB(),
+		Db: db.ConnectDB(cfg.Database.URI),
 	}
 	router := http.NewServeMux()
 
@@ -21,11 +28,11 @@ func main() {
 	router.HandleFunc("POST /api/createnew", operation.WriteTO())
 
 	server := http.Server{
-		Addr:    "localhost:3004",
+		Addr:    ":" + strconv.Itoa(cfg.Server.Port),
 		Handler: router,
 	}
 
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
 		log.Fatal("There is an error")
 	}

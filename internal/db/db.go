@@ -9,9 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-func ConnectDB() *mongo.Database {
-	const uri = "mongodb://localhost:27017/?directConnection=true"
-
+func ConnectDB(uri string) *mongo.Database {
 	client, err := mongo.Connect(options.Client().ApplyURI(uri))
 
 	if err != nil {

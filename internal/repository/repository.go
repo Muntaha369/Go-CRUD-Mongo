@@ -33,8 +33,7 @@ func (h *Service) GetAll() http.HandlerFunc {
 			return
 		}
 		response.WriteJson(w, 200, users)
-	}
-	
+	}	
 }
 
 func (h *Service) WriteTO() http.HandlerFunc {
