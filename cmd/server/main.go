@@ -28,6 +28,7 @@ func main() {
 	router.HandleFunc("POST /api/createnew", operation.CreateNew())
 	router.HandleFunc("GET /api/getuser/{name}", operation.GetByName())
 	router.HandleFunc("PUT /api/updateuser", operation.UpdateUser())
+	router.HandleFunc("DELETE /api/deleteuser", operation.DeleteUser())
 
 	server := http.Server{
 		Addr:    ":" + strconv.Itoa(cfg.Server.Port),

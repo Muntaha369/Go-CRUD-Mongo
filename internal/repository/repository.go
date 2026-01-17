@@ -60,15 +60,21 @@ func (h *Service) CreateNew() http.HandlerFunc {
 func (h *Service) GetByName() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		name := r.PathValue("name")
+		var user model.User
 
-		res := h.DB.Db.Collection("users").FindOne(context.TODO(), name)
+		filter := bson.M{"name": name}
+		err := h.DB.Db.Collection("users").FindOne(context.TODO(), filter).Decode(&user)
 
-		if res != nil {
-			response.WriteJson(w, 404, map[string]string{"message": "Cant seem to find a user with taht name"})
+		if err != nil {
+			if err.Error() == "mongo: no documents in result" {
+				response.WriteJson(w, http.StatusNotFound, response.Genralerror(errors.New("user not found")))
+				return
+			}
+			response.WriteJson(w, http.StatusInternalServerError, response.Genralerror(err))
 			return
 		}
 
-		response.WriteJson(w, 200, map[string]string{"message": "User exists"})
+		response.WriteJson(w, http.StatusOK, user)
 	}
 }
 
@@ -96,5 +102,39 @@ func (h *Service) UpdateUser() http.HandlerFunc {
 		}
 
 		response.WriteJson(w, 203, map[string]string{"message": "user updated successfully"})
+	}
+}
+
+func (h *Service) DeleteUser() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var user struct {
+			Name string `json:"name"`
+		}
+
+		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+			response.WriteJson(w, 400, response.Genralerror(err))
+			return
+		}
+
+		if user.Name == "" {
+			response.WriteJson(w, 400, map[string]string{"error": "name is required"})
+			return
+		}
+
+		filter := bson.M{"name": user.Name}
+
+		result, err := h.DB.Db.Collection("users").DeleteOne(context.TODO(), filter)
+
+		if err != nil {
+			response.WriteJson(w, 500, response.Genralerror(err))
+			return
+		}
+
+		if result.DeletedCount == 0 {
+			response.WriteJson(w, 404, map[string]string{"error": "user not found"})
+			return
+		}
+
+		response.WriteJson(w, 200, map[string]string{"message": "user deleted"})
 	}
 }
